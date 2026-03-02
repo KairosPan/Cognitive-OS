@@ -25,17 +25,56 @@ interface StoreContextType {
 const StoreContext = createContext<StoreContextType | undefined>(undefined);
 
 export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [energyLogs, setEnergyLogs] = useState<EnergyLog[]>(mockEnergyLogs);
-  const [projects, setProjects] = useState<PipelineProject[]>(mockProjects);
-  const [tasks, setTasks] = useState<Task[]>(mockTasks);
-  const [parkingLotItems, setParkingLotItems] = useState<ParkingLotItem[]>(mockParkingLot);
-  const [weeklyPlan, setWeeklyPlan] = useState<WeeklyPlan>(mockWeeklyPlan);
+  const [energyLogs, setEnergyLogs] = useState<EnergyLog[]>(() => {
+    const saved = localStorage.getItem('energyLogs');
+    return saved ? JSON.parse(saved) : mockEnergyLogs;
+  });
+
+  const [projects, setProjects] = useState<PipelineProject[]>(() => {
+    const saved = localStorage.getItem('projects');
+    return saved ? JSON.parse(saved) : mockProjects;
+  });
+
+  const [tasks, setTasks] = useState<Task[]>(() => {
+    const saved = localStorage.getItem('tasks');
+    return saved ? JSON.parse(saved) : mockTasks;
+  });
+
+  const [parkingLotItems, setParkingLotItems] = useState<ParkingLotItem[]>(() => {
+    const saved = localStorage.getItem('parkingLotItems');
+    return saved ? JSON.parse(saved) : mockParkingLot;
+  });
+
+  const [weeklyPlan, setWeeklyPlan] = useState<WeeklyPlan>(() => {
+    const saved = localStorage.getItem('weeklyPlan');
+    return saved ? JSON.parse(saved) : mockWeeklyPlan;
+  });
+
+  React.useEffect(() => {
+    localStorage.setItem('energyLogs', JSON.stringify(energyLogs));
+  }, [energyLogs]);
+
+  React.useEffect(() => {
+    localStorage.setItem('projects', JSON.stringify(projects));
+  }, [projects]);
+
+  React.useEffect(() => {
+    localStorage.setItem('tasks', JSON.stringify(tasks));
+  }, [tasks]);
+
+  React.useEffect(() => {
+    localStorage.setItem('parkingLotItems', JSON.stringify(parkingLotItems));
+  }, [parkingLotItems]);
+
+  React.useEffect(() => {
+    localStorage.setItem('weeklyPlan', JSON.stringify(weeklyPlan));
+  }, [weeklyPlan]);
 
   const addEnergyLog = (log: EnergyLog) => setEnergyLogs([log, ...energyLogs]);
   const addProject = (project: PipelineProject) => setProjects([project, ...projects]);
   const updateProject = (updated: PipelineProject) => setProjects(projects.map(p => p.id === updated.id ? updated : p));
   const deleteProject = (id: string) => setProjects(projects.filter(p => p.id !== id));
-  
+
   const addTask = (task: Task) => setTasks([task, ...tasks]);
   const updateTask = (updated: Task) => setTasks(tasks.map(t => t.id === updated.id ? updated : t));
   const deleteTask = (id: string) => setTasks(tasks.filter(t => t.id !== id));
@@ -48,9 +87,9 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const updateWeeklyPlan = (plan: WeeklyPlan) => setWeeklyPlan(plan);
 
   return (
-    <StoreContext.Provider value={{ 
+    <StoreContext.Provider value={{
       energyLogs, projects, tasks, parkingLotItems, weeklyPlan,
-      addEnergyLog, addProject, updateProject, deleteProject, 
+      addEnergyLog, addProject, updateProject, deleteProject,
       addTask, updateTask, deleteTask, toggleTask,
       addParkingLotItem, updateParkingLotItem, deleteParkingLotItem,
       updateWeeklyPlan

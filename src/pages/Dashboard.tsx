@@ -4,21 +4,21 @@ import { AlertCircle, BatteryCharging, BrainCircuit, Target, Calendar } from 'lu
 
 export default function Dashboard() {
   const { tasks, projects, energyLogs, weeklyPlan, updateWeeklyPlan } = useStore();
-  
+
   const today = new Date().toISOString().split('T')[0];
   const todayLog = energyLogs.find(log => log.date === today);
   const todayMentalClarity = todayLog?.mentalClarity || 10;
-  
+
   // Rule: Mental Clarity <= 5 -> No High Energy tasks
   const canDoHighEnergy = todayMentalClarity > 5;
 
   const todayTasks = tasks.filter(t => t.date === today);
-  
+
   const activeProjects = projects.filter(p => p.stage !== 'Archived' && p.stage !== 'Done');
-  
-  const highDepthProjects = projects.filter(p => 
-    p.depthScore >= 8 && 
-    (p.stage === 'Researching' || p.stage === 'Building')
+
+  const highDepthProjects = projects.filter(p =>
+    p.depthScore >= 8 &&
+    (p.stage === 'Researching' || p.stage === 'Doing')
   );
 
   return (
@@ -51,20 +51,20 @@ export default function Dashboard() {
             <div className="space-y-3">
               <div className="flex items-center gap-3">
                 <span className="text-zinc-500 font-mono text-xs w-16">Track 1</span>
-                <input 
-                  type="text" 
-                  value={weeklyPlan.focus1} 
-                  onChange={e => updateWeeklyPlan({...weeklyPlan, focus1: e.target.value})}
+                <input
+                  type="text"
+                  value={weeklyPlan.focus1}
+                  onChange={e => updateWeeklyPlan({ ...weeklyPlan, focus1: e.target.value })}
                   className="flex-1 bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-1.5 text-sm text-zinc-100 focus:ring-1 focus:ring-zinc-500 outline-none"
                   placeholder="Main Focus 1..."
                 />
               </div>
               <div className="flex items-center gap-3">
                 <span className="text-zinc-500 font-mono text-xs w-16">Track 2</span>
-                <input 
-                  type="text" 
-                  value={weeklyPlan.focus2} 
-                  onChange={e => updateWeeklyPlan({...weeklyPlan, focus2: e.target.value})}
+                <input
+                  type="text"
+                  value={weeklyPlan.focus2}
+                  onChange={e => updateWeeklyPlan({ ...weeklyPlan, focus2: e.target.value })}
                   className="flex-1 bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-1.5 text-sm text-zinc-100 focus:ring-1 focus:ring-zinc-500 outline-none"
                   placeholder="Main Focus 2..."
                 />
@@ -77,10 +77,10 @@ export default function Dashboard() {
               {['mon', 'tue', 'wed', 'thu', 'fri'].map(day => (
                 <div key={day} className="flex items-center gap-2">
                   <span className="text-zinc-500 font-mono text-xs w-8 capitalize">{day}</span>
-                  <input 
-                    type="text" 
-                    value={weeklyPlan[day as keyof typeof weeklyPlan]} 
-                    onChange={e => updateWeeklyPlan({...weeklyPlan, [day]: e.target.value})}
+                  <input
+                    type="text"
+                    value={weeklyPlan[day as keyof typeof weeklyPlan]}
+                    onChange={e => updateWeeklyPlan({ ...weeklyPlan, [day]: e.target.value })}
                     className="flex-1 bg-zinc-800 border border-zinc-700 rounded-lg px-2 py-1 text-xs text-zinc-100 focus:ring-1 focus:ring-zinc-500 outline-none"
                     placeholder="Planned session..."
                   />
@@ -110,11 +110,10 @@ export default function Dashboard() {
                       <span className={`text-sm font-medium ${task.completed ? 'line-through text-zinc-400' : 'text-zinc-900'}`}>
                         {task.title}
                       </span>
-                      <span className={`text-xs px-2 py-1 rounded-full font-medium ${
-                        task.energyRequired === 'High' ? 'bg-red-100 text-red-700' :
-                        task.energyRequired === 'Medium' ? 'bg-amber-100 text-amber-700' :
-                        'bg-emerald-100 text-emerald-700'
-                      }`}>
+                      <span className={`text-xs px-2 py-1 rounded-full font-medium ${task.energyRequired === 'High' ? 'bg-red-100 text-red-700' :
+                          task.energyRequired === 'Medium' ? 'bg-amber-100 text-amber-700' :
+                            'bg-emerald-100 text-emerald-700'
+                        }`}>
                         {task.energyRequired}
                       </span>
                     </div>
@@ -136,7 +135,7 @@ export default function Dashboard() {
             <Target className="text-zinc-400" size={20} />
             <h3 className="font-semibold text-zinc-900">High-Depth Focus</h3>
           </div>
-          <p className="text-xs text-zinc-500 mb-4">Depth Score ≥ 8 • Researching/Building</p>
+          <p className="text-xs text-zinc-500 mb-4">Depth Score ≥ 8 • Researching/Doing</p>
           <div className="space-y-3">
             {highDepthProjects.length === 0 ? (
               <p className="text-sm text-zinc-500">No high-depth projects active.</p>

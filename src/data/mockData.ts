@@ -40,7 +40,7 @@ export const mockProjects: PipelineProject[] = [
     id: 'p2',
     title: 'Agent Memory Architecture',
     track: 'AI Agent Engineering',
-    stage: 'Building',
+    stage: 'Doing',
     depthScore: 8,
     expectedOutput: 'Working prototype with vector DB',
     killCriteria: 'If latency > 2s, rethink approach',

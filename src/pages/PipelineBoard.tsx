@@ -3,7 +3,7 @@ import { useStore } from '../context/StoreContext';
 import { PipelineStage, PipelineProject } from '../types';
 import { Plus, Edit2, Trash2, Star } from 'lucide-react';
 
-const STAGES: PipelineStage[] = ['Idea', 'Defined', 'Researching', 'Building', 'Testing', 'Done', 'Archived'];
+const STAGES: PipelineStage[] = ['Idea', 'Defined', 'Researching', 'Doing', 'Testing', 'Done', 'Archived'];
 
 export default function PipelineBoard() {
   const { projects, addProject, updateProject, deleteProject } = useStore();
@@ -67,9 +67,9 @@ export default function PipelineBoard() {
       <div className="flex justify-between items-center shrink-0">
         <header>
           <h2 className="text-3xl font-bold tracking-tight text-zinc-900">Pipeline Board</h2>
-          <p className="text-zinc-500 mt-1">Lifecycle management for research and building.</p>
+          <p className="text-zinc-500 mt-1">Lifecycle management for research and doing.</p>
         </header>
-        <button 
+        <button
           onClick={() => {
             setEditingId(null);
             setFormData({ title: '', track: 'Master Course Study', stage: 'Idea', depthScore: 5, expectedOutput: '', killCriteria: '', notes: '', importance: 1, focusTime: '' });
@@ -87,11 +87,11 @@ export default function PipelineBoard() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-zinc-700 mb-1">Project Title</label>
-                <input type="text" required value={formData.title} onChange={e => setFormData({...formData, title: e.target.value})} className="w-full border border-zinc-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-zinc-900 focus:border-zinc-900 outline-none" />
+                <input type="text" required value={formData.title} onChange={e => setFormData({ ...formData, title: e.target.value })} className="w-full border border-zinc-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-zinc-900 focus:border-zinc-900 outline-none" />
               </div>
               <div>
                 <label className="block text-sm font-medium text-zinc-700 mb-1">Track</label>
-                <select value={formData.track} onChange={e => setFormData({...formData, track: e.target.value as any})} className="w-full border border-zinc-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-zinc-900 focus:border-zinc-900 outline-none">
+                <select value={formData.track} onChange={e => setFormData({ ...formData, track: e.target.value as any })} className="w-full border border-zinc-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-zinc-900 focus:border-zinc-900 outline-none">
                   <option value="Master Course Study">Master Course Study</option>
                   <option value="AI Agent Engineering">AI Agent Engineering</option>
                   <option value="Quant / BTC">Quant / BTC</option>
@@ -100,17 +100,17 @@ export default function PipelineBoard() {
               </div>
               <div>
                 <label className="block text-sm font-medium text-zinc-700 mb-1">Stage</label>
-                <select value={formData.stage} onChange={e => setFormData({...formData, stage: e.target.value as any})} className="w-full border border-zinc-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-zinc-900 focus:border-zinc-900 outline-none">
+                <select value={formData.stage} onChange={e => setFormData({ ...formData, stage: e.target.value as any })} className="w-full border border-zinc-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-zinc-900 focus:border-zinc-900 outline-none">
                   {STAGES.map(s => <option key={s} value={s}>{s}</option>)}
                 </select>
               </div>
               <div>
                 <label className="block text-sm font-medium text-zinc-700 mb-1">Depth Score (1-10)</label>
-                <input type="number" min="1" max="10" required value={formData.depthScore} onChange={e => setFormData({...formData, depthScore: parseInt(e.target.value)})} className="w-full border border-zinc-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-zinc-900 focus:border-zinc-900 outline-none" />
+                <input type="number" min="1" max="10" required value={formData.depthScore} onChange={e => setFormData({ ...formData, depthScore: parseInt(e.target.value) })} className="w-full border border-zinc-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-zinc-900 focus:border-zinc-900 outline-none" />
               </div>
               <div>
                 <label className="block text-sm font-medium text-zinc-700 mb-1">Importance (1-3 Stars)</label>
-                <select value={formData.importance} onChange={e => setFormData({...formData, importance: parseInt(e.target.value) as any})} className="w-full border border-zinc-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-zinc-900 focus:border-zinc-900 outline-none">
+                <select value={formData.importance} onChange={e => setFormData({ ...formData, importance: parseInt(e.target.value) as any })} className="w-full border border-zinc-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-zinc-900 focus:border-zinc-900 outline-none">
                   <option value="1">1 Star</option>
                   <option value="2">2 Stars</option>
                   <option value="3">3 Stars</option>
@@ -118,15 +118,15 @@ export default function PipelineBoard() {
               </div>
               <div>
                 <label className="block text-sm font-medium text-zinc-700 mb-1">Focus Time Slot (Optional)</label>
-                <input type="text" value={formData.focusTime} onChange={e => setFormData({...formData, focusTime: e.target.value})} className="w-full border border-zinc-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-zinc-900 focus:border-zinc-900 outline-none" placeholder="e.g. 09:00 - 11:30" />
+                <input type="text" value={formData.focusTime} onChange={e => setFormData({ ...formData, focusTime: e.target.value })} className="w-full border border-zinc-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-zinc-900 focus:border-zinc-900 outline-none" placeholder="e.g. 09:00 - 11:30" />
               </div>
               <div className="md:col-span-2">
                 <label className="block text-sm font-medium text-zinc-700 mb-1">Expected Output</label>
-                <input type="text" value={formData.expectedOutput} onChange={e => setFormData({...formData, expectedOutput: e.target.value})} className="w-full border border-zinc-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-zinc-900 focus:border-zinc-900 outline-none" placeholder="e.g. Formula and basic python script" />
+                <input type="text" value={formData.expectedOutput} onChange={e => setFormData({ ...formData, expectedOutput: e.target.value })} className="w-full border border-zinc-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-zinc-900 focus:border-zinc-900 outline-none" placeholder="e.g. Formula and basic python script" />
               </div>
               <div className="md:col-span-2">
                 <label className="block text-sm font-medium text-zinc-700 mb-1">Kill Criteria (Crucial)</label>
-                <input type="text" required value={formData.killCriteria} onChange={e => setFormData({...formData, killCriteria: e.target.value})} className="w-full border border-zinc-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-zinc-900 focus:border-zinc-900 outline-none" placeholder="e.g. 2 weeks no progress" />
+                <input type="text" required value={formData.killCriteria} onChange={e => setFormData({ ...formData, killCriteria: e.target.value })} className="w-full border border-zinc-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-zinc-900 focus:border-zinc-900 outline-none" placeholder="e.g. 2 weeks no progress" />
               </div>
             </div>
             <div className="flex justify-end gap-2 mt-4">
@@ -144,8 +144,8 @@ export default function PipelineBoard() {
           {STAGES.map(stage => {
             const stageProjects = projects.filter(p => p.stage === stage);
             return (
-              <div 
-                key={stage} 
+              <div
+                key={stage}
                 className="w-72 bg-zinc-100/50 rounded-xl border border-zinc-200 flex flex-col"
                 onDrop={(e) => handleDrop(e, stage)}
                 onDragOver={handleDragOver}
@@ -158,7 +158,7 @@ export default function PipelineBoard() {
                 </div>
                 <div className="p-3 flex-1 overflow-y-auto space-y-3">
                   {stageProjects.map(project => (
-                    <div 
+                    <div
                       key={project.id}
                       draggable
                       onDragStart={(e) => handleDragStart(e, project.id)}
@@ -172,7 +172,7 @@ export default function PipelineBoard() {
                         </div>
                       </div>
                       <h4 className="text-sm font-semibold text-zinc-900 mb-2 leading-tight">{project.title}</h4>
-                      
+
                       <div className="flex gap-1 mb-3">
                         {[1, 2, 3].map(star => (
                           <Star key={star} size={12} className={star <= (project.importance || 1) ? "fill-amber-400 text-amber-400" : "text-zinc-200"} />

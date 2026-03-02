@@ -13,7 +13,7 @@ export interface EnergyLog {
   notes: string;
 }
 
-export type PipelineStage = 'Idea' | 'Defined' | 'Researching' | 'Building' | 'Testing' | 'Done' | 'Archived';
+export type PipelineStage = 'Idea' | 'Defined' | 'Researching' | 'Doing' | 'Testing' | 'Done' | 'Archived';
 export type Importance = 1 | 2 | 3;
 
 export interface PipelineProject {
