@@ -1,13 +1,14 @@
 import React, { useState } from 'react';
 import { useStore } from '../context/StoreContext';
 import { PipelineStage, PipelineProject } from '../types';
-import { Plus, MoreHorizontal } from 'lucide-react';
+import { Plus, Edit2, Trash2, Star } from 'lucide-react';
 
 const STAGES: PipelineStage[] = ['Idea', 'Defined', 'Researching', 'Building', 'Testing', 'Done', 'Archived'];
 
 export default function PipelineBoard() {
-  const { projects, addProject, updateProject } = useStore();
+  const { projects, addProject, updateProject, deleteProject } = useStore();
   const [showForm, setShowForm] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
 
   const [formData, setFormData] = useState<Partial<PipelineProject>>({
     title: '',
@@ -16,18 +17,31 @@ export default function PipelineBoard() {
     depthScore: 5,
     expectedOutput: '',
     killCriteria: '',
-    notes: ''
+    notes: '',
+    importance: 1,
+    focusTime: ''
   });
+
+  const handleEdit = (project: PipelineProject) => {
+    setFormData(project);
+    setEditingId(project.id);
+    setShowForm(true);
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    addProject({
-      ...formData,
-      id: Math.random().toString(36).substr(2, 9),
-    } as PipelineProject);
+    if (editingId) {
+      updateProject({ ...formData, id: editingId } as PipelineProject);
+    } else {
+      addProject({
+        ...formData,
+        id: Math.random().toString(36).substr(2, 9),
+      } as PipelineProject);
+    }
     setShowForm(false);
+    setEditingId(null);
     setFormData({
-      title: '', track: 'Master Course Study', stage: 'Idea', depthScore: 5, expectedOutput: '', killCriteria: '', notes: ''
+      title: '', track: 'Master Course Study', stage: 'Idea', depthScore: 5, expectedOutput: '', killCriteria: '', notes: '', importance: 1, focusTime: ''
     });
   };
 
@@ -56,7 +70,11 @@ export default function PipelineBoard() {
           <p className="text-zinc-500 mt-1">Lifecycle management for research and building.</p>
         </header>
         <button 
-          onClick={() => setShowForm(!showForm)}
+          onClick={() => {
+            setEditingId(null);
+            setFormData({ title: '', track: 'Master Course Study', stage: 'Idea', depthScore: 5, expectedOutput: '', killCriteria: '', notes: '', importance: 1, focusTime: '' });
+            setShowForm(!showForm);
+          }}
           className="bg-zinc-900 text-white px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2 hover:bg-zinc-800 transition-colors"
         >
           <Plus size={16} /> New Project
@@ -90,6 +108,18 @@ export default function PipelineBoard() {
                 <label className="block text-sm font-medium text-zinc-700 mb-1">Depth Score (1-10)</label>
                 <input type="number" min="1" max="10" required value={formData.depthScore} onChange={e => setFormData({...formData, depthScore: parseInt(e.target.value)})} className="w-full border border-zinc-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-zinc-900 focus:border-zinc-900 outline-none" />
               </div>
+              <div>
+                <label className="block text-sm font-medium text-zinc-700 mb-1">Importance (1-3 Stars)</label>
+                <select value={formData.importance} onChange={e => setFormData({...formData, importance: parseInt(e.target.value) as any})} className="w-full border border-zinc-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-zinc-900 focus:border-zinc-900 outline-none">
+                  <option value="1">1 Star</option>
+                  <option value="2">2 Stars</option>
+                  <option value="3">3 Stars</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-zinc-700 mb-1">Focus Time Slot (Optional)</label>
+                <input type="text" value={formData.focusTime} onChange={e => setFormData({...formData, focusTime: e.target.value})} className="w-full border border-zinc-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-zinc-900 focus:border-zinc-900 outline-none" placeholder="e.g. 09:00 - 11:30" />
+              </div>
               <div className="md:col-span-2">
                 <label className="block text-sm font-medium text-zinc-700 mb-1">Expected Output</label>
                 <input type="text" value={formData.expectedOutput} onChange={e => setFormData({...formData, expectedOutput: e.target.value})} className="w-full border border-zinc-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-zinc-900 focus:border-zinc-900 outline-none" placeholder="e.g. Formula and basic python script" />
@@ -100,8 +130,10 @@ export default function PipelineBoard() {
               </div>
             </div>
             <div className="flex justify-end gap-2 mt-4">
-              <button type="button" onClick={() => setShowForm(false)} className="px-4 py-2 text-sm font-medium text-zinc-600 hover:text-zinc-900">Cancel</button>
-              <button type="submit" className="bg-zinc-900 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-zinc-800 transition-colors">Create Project</button>
+              <button type="button" onClick={() => { setShowForm(false); setEditingId(null); }} className="px-4 py-2 text-sm font-medium text-zinc-600 hover:text-zinc-900">Cancel</button>
+              <button type="submit" className="bg-zinc-900 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-zinc-800 transition-colors">
+                {editingId ? 'Save Changes' : 'Create Project'}
+              </button>
             </div>
           </form>
         </div>
@@ -130,13 +162,23 @@ export default function PipelineBoard() {
                       key={project.id}
                       draggable
                       onDragStart={(e) => handleDragStart(e, project.id)}
-                      className="bg-white p-3 rounded-lg border border-zinc-200 shadow-sm cursor-grab active:cursor-grabbing hover:border-zinc-300 transition-colors"
+                      className="bg-white p-3 rounded-lg border border-zinc-200 shadow-sm cursor-grab active:cursor-grabbing hover:border-zinc-300 transition-colors group"
                     >
                       <div className="flex justify-between items-start mb-2">
                         <span className="text-xs font-medium text-zinc-500">{project.track}</span>
-                        <button className="text-zinc-400 hover:text-zinc-600"><MoreHorizontal size={14} /></button>
+                        <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                          <button onClick={() => handleEdit(project)} className="text-zinc-400 hover:text-zinc-900"><Edit2 size={14} /></button>
+                          <button onClick={() => deleteProject(project.id)} className="text-zinc-400 hover:text-red-600"><Trash2 size={14} /></button>
+                        </div>
                       </div>
                       <h4 className="text-sm font-semibold text-zinc-900 mb-2 leading-tight">{project.title}</h4>
+                      
+                      <div className="flex gap-1 mb-3">
+                        {[1, 2, 3].map(star => (
+                          <Star key={star} size={12} className={star <= (project.importance || 1) ? "fill-amber-400 text-amber-400" : "text-zinc-200"} />
+                        ))}
+                      </div>
+
                       {project.expectedOutput && (
                         <p className="text-xs text-zinc-600 mb-3 line-clamp-2">
                           <span className="font-medium">Output:</span> {project.expectedOutput}

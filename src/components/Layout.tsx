@@ -1,5 +1,5 @@
 import React from 'react';
-import { LayoutDashboard, Battery, KanbanSquare, CheckSquare } from 'lucide-react';
+import { LayoutDashboard, Battery, KanbanSquare, CheckSquare, Lightbulb } from 'lucide-react';
 import { Page } from '../App';
 
 interface LayoutProps {
@@ -14,6 +14,7 @@ export default function Layout({ children, currentPage, onNavigate }: LayoutProp
     { id: 'energy', label: 'Energy Log', icon: Battery },
     { id: 'pipeline', label: 'Pipeline Board', icon: KanbanSquare },
     { id: 'tasks', label: 'Task Engine', icon: CheckSquare },
+    { id: 'parking', label: 'Parking Lot', icon: Lightbulb },
   ] as const;
 
   return (

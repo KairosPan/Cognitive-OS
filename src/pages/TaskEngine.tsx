@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
 import { useStore } from '../context/StoreContext';
 import { Task } from '../types';
-import { Plus, CheckCircle2, Circle } from 'lucide-react';
+import { Plus, CheckCircle2, Circle, Edit2, Trash2 } from 'lucide-react';
 
 export default function TaskEngine() {
-  const { tasks, projects, addTask, toggleTask } = useStore();
+  const { tasks, projects, addTask, updateTask, deleteTask, toggleTask } = useStore();
   const [showForm, setShowForm] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
 
   const [formData, setFormData] = useState<Partial<Task>>({
     title: '',
@@ -15,15 +16,26 @@ export default function TaskEngine() {
     date: new Date().toISOString().split('T')[0],
   });
 
+  const handleEdit = (task: Task) => {
+    setFormData(task);
+    setEditingId(task.id);
+    setShowForm(true);
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    addTask({
-      ...formData,
-      id: Math.random().toString(36).substr(2, 9),
-      completed: false,
-    } as Task);
+    if (editingId) {
+      updateTask({ ...formData, id: editingId } as Task);
+    } else {
+      addTask({
+        ...formData,
+        id: Math.random().toString(36).substr(2, 9),
+        completed: false,
+      } as Task);
+    }
     setShowForm(false);
-    setFormData({ ...formData, title: '' });
+    setEditingId(null);
+    setFormData({ title: '', energyRequired: 'Medium', bestTime: 'Morning', pipelineId: '', date: new Date().toISOString().split('T')[0] });
   };
 
   const activeProjects = projects.filter(p => p.stage !== 'Archived' && p.stage !== 'Done');
@@ -36,7 +48,11 @@ export default function TaskEngine() {
           <p className="text-zinc-500 mt-1">Energy-aware execution. No random thoughts.</p>
         </header>
         <button 
-          onClick={() => setShowForm(!showForm)}
+          onClick={() => {
+            setEditingId(null);
+            setFormData({ title: '', energyRequired: 'Medium', bestTime: 'Morning', pipelineId: '', date: new Date().toISOString().split('T')[0] });
+            setShowForm(!showForm);
+          }}
           className="bg-zinc-900 text-white px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2 hover:bg-zinc-800 transition-colors"
         >
           <Plus size={16} /> New Task
@@ -82,8 +98,10 @@ export default function TaskEngine() {
               </div>
             </div>
             <div className="flex justify-end gap-2 mt-4">
-              <button type="button" onClick={() => setShowForm(false)} className="px-4 py-2 text-sm font-medium text-zinc-600 hover:text-zinc-900">Cancel</button>
-              <button type="submit" className="bg-zinc-900 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-zinc-800 transition-colors">Add Task</button>
+              <button type="button" onClick={() => { setShowForm(false); setEditingId(null); }} className="px-4 py-2 text-sm font-medium text-zinc-600 hover:text-zinc-900">Cancel</button>
+              <button type="submit" className="bg-zinc-900 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-zinc-800 transition-colors">
+                {editingId ? 'Save Changes' : 'Add Task'}
+              </button>
             </div>
           </form>
         </div>
@@ -97,12 +115,13 @@ export default function TaskEngine() {
           <div className="w-32">Time</div>
           <div className="w-48">Pipeline</div>
           <div className="w-32">Date</div>
+          <div className="w-16"></div>
         </div>
         <div className="divide-y divide-zinc-200">
           {tasks.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()).map(task => {
             const project = projects.find(p => p.id === task.pipelineId);
             return (
-              <div key={task.id} className={`p-4 flex items-center gap-4 transition-colors hover:bg-zinc-50 ${task.completed ? 'opacity-60' : ''}`}>
+              <div key={task.id} className={`p-4 flex items-center gap-4 transition-colors hover:bg-zinc-50 group ${task.completed ? 'opacity-60' : ''}`}>
                 <button onClick={() => toggleTask(task.id)} className="w-8 flex justify-center text-zinc-400 hover:text-zinc-900 transition-colors">
                   {task.completed ? <CheckCircle2 className="text-emerald-500" /> : <Circle />}
                 </button>
@@ -130,6 +149,10 @@ export default function TaskEngine() {
                 </div>
                 <div className="w-32 text-sm text-zinc-600 font-mono">
                   {task.date}
+                </div>
+                <div className="w-16 flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <button onClick={() => handleEdit(task)} className="text-zinc-400 hover:text-zinc-900"><Edit2 size={16} /></button>
+                  <button onClick={() => deleteTask(task.id)} className="text-zinc-400 hover:text-red-600"><Trash2 size={16} /></button>
                 </div>
               </div>
             );

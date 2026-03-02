@@ -1,13 +1,13 @@
 import React from 'react';
 import { useStore } from '../context/StoreContext';
-import { AlertCircle, BatteryCharging, BrainCircuit, Target } from 'lucide-react';
+import { AlertCircle, BatteryCharging, BrainCircuit, Target, Calendar } from 'lucide-react';
 
 export default function Dashboard() {
-  const { tasks, projects, energyLogs } = useStore();
+  const { tasks, projects, energyLogs, weeklyPlan, updateWeeklyPlan } = useStore();
   
   const today = new Date().toISOString().split('T')[0];
   const todayLog = energyLogs.find(log => log.date === today);
-  const todayMentalClarity = todayLog?.mentalClarity || 10; // Default to 10 if no log
+  const todayMentalClarity = todayLog?.mentalClarity || 10;
   
   // Rule: Mental Clarity <= 5 -> No High Energy tasks
   const canDoHighEnergy = todayMentalClarity > 5;
@@ -38,6 +38,58 @@ export default function Dashboard() {
           </div>
         </div>
       )}
+
+      {/* Weekly Control Panel */}
+      <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6 shadow-sm text-white">
+        <div className="flex items-center gap-2 mb-6">
+          <Calendar className="text-zinc-400" size={20} />
+          <h3 className="font-semibold text-white">Weekly Control Panel</h3>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div>
+            <h4 className="text-sm font-medium text-zinc-400 mb-3 uppercase tracking-wider">This Week Focus</h4>
+            <div className="space-y-3">
+              <div className="flex items-center gap-3">
+                <span className="text-zinc-500 font-mono text-xs w-16">Track 1</span>
+                <input 
+                  type="text" 
+                  value={weeklyPlan.focus1} 
+                  onChange={e => updateWeeklyPlan({...weeklyPlan, focus1: e.target.value})}
+                  className="flex-1 bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-1.5 text-sm text-zinc-100 focus:ring-1 focus:ring-zinc-500 outline-none"
+                  placeholder="Main Focus 1..."
+                />
+              </div>
+              <div className="flex items-center gap-3">
+                <span className="text-zinc-500 font-mono text-xs w-16">Track 2</span>
+                <input 
+                  type="text" 
+                  value={weeklyPlan.focus2} 
+                  onChange={e => updateWeeklyPlan({...weeklyPlan, focus2: e.target.value})}
+                  className="flex-1 bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-1.5 text-sm text-zinc-100 focus:ring-1 focus:ring-zinc-500 outline-none"
+                  placeholder="Main Focus 2..."
+                />
+              </div>
+            </div>
+          </div>
+          <div>
+            <h4 className="text-sm font-medium text-zinc-400 mb-3 uppercase tracking-wider">Deep Sessions Planned</h4>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {['mon', 'tue', 'wed', 'thu', 'fri'].map(day => (
+                <div key={day} className="flex items-center gap-2">
+                  <span className="text-zinc-500 font-mono text-xs w-8 capitalize">{day}</span>
+                  <input 
+                    type="text" 
+                    value={weeklyPlan[day as keyof typeof weeklyPlan]} 
+                    onChange={e => updateWeeklyPlan({...weeklyPlan, [day]: e.target.value})}
+                    className="flex-1 bg-zinc-800 border border-zinc-700 rounded-lg px-2 py-1 text-xs text-zinc-100 focus:ring-1 focus:ring-zinc-500 outline-none"
+                    placeholder="Planned session..."
+                  />
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Energy-Aware Today View */}
@@ -79,26 +131,31 @@ export default function Dashboard() {
         </div>
 
         {/* High-Depth Focus View */}
-        <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6 shadow-sm text-white">
+        <div className="bg-white border border-zinc-200 rounded-2xl p-6 shadow-sm">
           <div className="flex items-center gap-2 mb-4">
             <Target className="text-zinc-400" size={20} />
-            <h3 className="font-semibold text-white">High-Depth Focus</h3>
+            <h3 className="font-semibold text-zinc-900">High-Depth Focus</h3>
           </div>
-          <p className="text-xs text-zinc-400 mb-4">Depth Score ≥ 8 • Researching/Building</p>
+          <p className="text-xs text-zinc-500 mb-4">Depth Score ≥ 8 • Researching/Building</p>
           <div className="space-y-3">
             {highDepthProjects.length === 0 ? (
               <p className="text-sm text-zinc-500">No high-depth projects active.</p>
             ) : (
               highDepthProjects.map(project => (
-                <div key={project.id} className="p-3 rounded-lg bg-zinc-800 border border-zinc-700">
+                <div key={project.id} className="p-3 rounded-lg bg-zinc-50 border border-zinc-200">
                   <div className="flex justify-between items-start mb-2">
-                    <span className="text-sm font-medium text-zinc-100">{project.title}</span>
-                    <span className="text-xs font-mono bg-zinc-700 text-zinc-300 px-1.5 py-0.5 rounded">
+                    <span className="text-sm font-medium text-zinc-900">{project.title}</span>
+                    <span className="text-xs font-mono bg-zinc-200 text-zinc-700 px-1.5 py-0.5 rounded">
                       Depth: {project.depthScore}
                     </span>
                   </div>
-                  <div className="text-xs text-zinc-400">
-                    Stage: <span className="text-zinc-300">{project.stage}</span>
+                  <div className="flex justify-between items-center text-xs text-zinc-500">
+                    <span>Stage: <span className="text-zinc-700 font-medium">{project.stage}</span></span>
+                    {project.focusTime && (
+                      <span className="bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full font-mono">
+                        {project.focusTime}
+                      </span>
+                    )}
                   </div>
                 </div>
               ))

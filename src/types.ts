@@ -14,6 +14,7 @@ export interface EnergyLog {
 }
 
 export type PipelineStage = 'Idea' | 'Defined' | 'Researching' | 'Building' | 'Testing' | 'Done' | 'Archived';
+export type Importance = 1 | 2 | 3;
 
 export interface PipelineProject {
   id: string;
@@ -24,6 +25,8 @@ export interface PipelineProject {
   expectedOutput: string;
   killCriteria: string;
   notes: string;
+  importance?: Importance;
+  focusTime?: string;
 }
 
 export type TaskEnergyRequired = 'High' | 'Medium' | 'Low';
@@ -37,4 +40,26 @@ export interface Task {
   pipelineId?: string;
   date: string;
   completed: boolean;
+}
+
+export type ParkingCategory = 'Startup' | 'Research' | 'Trading' | 'Personal';
+export type Urgency = 'Low' | 'Medium' | 'High';
+
+export interface ParkingLotItem {
+  id: string;
+  idea: string;
+  category: ParkingCategory;
+  urgency: Urgency;
+  linkedTrack?: Track | '';
+  reviewWeek: string;
+}
+
+export interface WeeklyPlan {
+  focus1: string;
+  focus2: string;
+  mon: string;
+  tue: string;
+  wed: string;
+  thu: string;
+  fri: string;
 }

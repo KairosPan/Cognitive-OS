@@ -1,4 +1,4 @@
-import { EnergyLog, PipelineProject, Task } from '../types';
+import { EnergyLog, PipelineProject, Task, ParkingLotItem, WeeklyPlan } from '../types';
 
 export const mockEnergyLogs: EnergyLog[] = [
   {
@@ -33,6 +33,8 @@ export const mockProjects: PipelineProject[] = [
     expectedOutput: 'Formula and basic python script',
     killCriteria: '2 weeks no progress',
     notes: 'Need to review stochastic processes.',
+    importance: 3,
+    focusTime: '09:00 - 11:30',
   },
   {
     id: 'p2',
@@ -43,6 +45,8 @@ export const mockProjects: PipelineProject[] = [
     expectedOutput: 'Working prototype with vector DB',
     killCriteria: 'If latency > 2s, rethink approach',
     notes: 'Using Pinecone for now.',
+    importance: 2,
+    focusTime: '14:00 - 16:00',
   },
   {
     id: 'p3',
@@ -53,6 +57,7 @@ export const mockProjects: PipelineProject[] = [
     expectedOutput: 'Summary notes',
     killCriteria: 'N/A',
     notes: '',
+    importance: 1,
   }
 ];
 
@@ -84,3 +89,24 @@ export const mockTasks: Task[] = [
     completed: true,
   }
 ];
+
+export const mockParkingLot: ParkingLotItem[] = [
+  {
+    id: 'pl1',
+    idea: 'Look into new reasoning models for agents',
+    category: 'Research',
+    urgency: 'Medium',
+    linkedTrack: 'AI Agent Engineering',
+    reviewWeek: 'Week 1',
+  }
+];
+
+export const mockWeeklyPlan: WeeklyPlan = {
+  focus1: 'Finish NHPP Derivation',
+  focus2: 'Agent Memory Prototype',
+  mon: 'NHPP Math (2h)',
+  tue: 'Agent Vector DB (2h)',
+  wed: 'NHPP Simulation (3h)',
+  thu: 'Agent Integration (2h)',
+  fri: 'Weekly Review & Buffer',
+};
