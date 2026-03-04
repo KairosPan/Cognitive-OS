@@ -1,4 +1,4 @@
-import React, { createContext, useState, useContext } from 'react';
+import React, { createContext, useState, useContext, useEffect, useRef } from 'react';
 import { EnergyLog, PipelineProject, Task, ParkingLotItem, WeeklyPlan } from '../types';
 import { mockEnergyLogs, mockProjects, mockTasks, mockParkingLot, mockWeeklyPlan } from '../data/mockData';
 
@@ -24,51 +24,71 @@ interface StoreContextType {
 
 const StoreContext = createContext<StoreContextType | undefined>(undefined);
 
+async function loadFromServer() {
+  try {
+    const res = await fetch('/api/data');
+    if (res.ok) {
+      const data = await res.json();
+      if (data && data.energyLogs) return data;
+    }
+  } catch {
+    // server not available
+  }
+  return null;
+}
+
+function saveToServer(data: {
+  energyLogs: EnergyLog[];
+  projects: PipelineProject[];
+  tasks: Task[];
+  parkingLotItems: ParkingLotItem[];
+  weeklyPlan: WeeklyPlan;
+}) {
+  fetch('/api/data', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  }).catch(() => {});
+}
+
 export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [energyLogs, setEnergyLogs] = useState<EnergyLog[]>(() => {
-    const saved = localStorage.getItem('energyLogs');
-    return saved ? JSON.parse(saved) : mockEnergyLogs;
-  });
+  const [energyLogs, setEnergyLogs] = useState<EnergyLog[]>(mockEnergyLogs);
+  const [projects, setProjects] = useState<PipelineProject[]>(mockProjects);
+  const [tasks, setTasks] = useState<Task[]>(mockTasks);
+  const [parkingLotItems, setParkingLotItems] = useState<ParkingLotItem[]>(mockParkingLot);
+  const [weeklyPlan, setWeeklyPlan] = useState<WeeklyPlan>(mockWeeklyPlan);
+  const [loaded, setLoaded] = useState(false);
+  const initialLoad = useRef(true);
 
-  const [projects, setProjects] = useState<PipelineProject[]>(() => {
-    const saved = localStorage.getItem('projects');
-    return saved ? JSON.parse(saved) : mockProjects;
-  });
+  // Load data from server on mount
+  useEffect(() => {
+    loadFromServer().then((data) => {
+      if (data) {
+        if (data.energyLogs?.length) setEnergyLogs(data.energyLogs);
+        if (data.projects?.length) setProjects(data.projects);
+        if (data.tasks?.length) setTasks(data.tasks);
+        if (data.parkingLotItems?.length) setParkingLotItems(data.parkingLotItems);
+        if (data.weeklyPlan?.focus1 !== undefined) setWeeklyPlan(data.weeklyPlan);
+      }
+      setLoaded(true);
+    });
+  }, []);
 
-  const [tasks, setTasks] = useState<Task[]>(() => {
-    const saved = localStorage.getItem('tasks');
-    return saved ? JSON.parse(saved) : mockTasks;
-  });
-
-  const [parkingLotItems, setParkingLotItems] = useState<ParkingLotItem[]>(() => {
-    const saved = localStorage.getItem('parkingLotItems');
-    return saved ? JSON.parse(saved) : mockParkingLot;
-  });
-
-  const [weeklyPlan, setWeeklyPlan] = useState<WeeklyPlan>(() => {
-    const saved = localStorage.getItem('weeklyPlan');
-    return saved ? JSON.parse(saved) : mockWeeklyPlan;
-  });
-
-  React.useEffect(() => {
+  // Save to server + localStorage on every change (skip initial load)
+  useEffect(() => {
+    if (!loaded) return;
+    if (initialLoad.current) {
+      initialLoad.current = false;
+      return;
+    }
+    const data = { energyLogs, projects, tasks, parkingLotItems, weeklyPlan };
+    saveToServer(data);
     localStorage.setItem('energyLogs', JSON.stringify(energyLogs));
-  }, [energyLogs]);
-
-  React.useEffect(() => {
     localStorage.setItem('projects', JSON.stringify(projects));
-  }, [projects]);
-
-  React.useEffect(() => {
     localStorage.setItem('tasks', JSON.stringify(tasks));
-  }, [tasks]);
-
-  React.useEffect(() => {
     localStorage.setItem('parkingLotItems', JSON.stringify(parkingLotItems));
-  }, [parkingLotItems]);
-
-  React.useEffect(() => {
     localStorage.setItem('weeklyPlan', JSON.stringify(weeklyPlan));
-  }, [weeklyPlan]);
+  }, [energyLogs, projects, tasks, parkingLotItems, weeklyPlan, loaded]);
 
   const addEnergyLog = (log: EnergyLog) => setEnergyLogs([log, ...energyLogs]);
   const addProject = (project: PipelineProject) => setProjects([project, ...projects]);
