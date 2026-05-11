@@ -7,3 +7,8 @@ coverage/
 .env*
 !.env.example
 data.json
+*.db
+*.db-shm
+*.db-wal
+*.db-journal
+.claude/

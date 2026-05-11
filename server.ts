@@ -1,48 +1,33 @@
 import express from 'express';
-import fs from 'fs';
-import path from 'path';
-import { fileURLToPath } from 'url';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+import { getAllData, saveAllData } from './database.js';
 
 const app = express();
 const PORT = 3001;
-const DATA_FILE = path.resolve(__dirname, 'data.json');
 
-app.use(express.json());
-
-interface AppData {
-  energyLogs: unknown[];
-  projects: unknown[];
-  tasks: unknown[];
-  parkingLotItems: unknown[];
-  weeklyPlan: unknown;
-}
-
-function readData(): AppData {
-  if (!fs.existsSync(DATA_FILE)) {
-    return { energyLogs: [], projects: [], tasks: [], parkingLotItems: [], weeklyPlan: null } as unknown as AppData;
-  }
-  return JSON.parse(fs.readFileSync(DATA_FILE, 'utf-8'));
-}
-
-function writeData(data: AppData) {
-  fs.writeFileSync(DATA_FILE, JSON.stringify(data, null, 2), 'utf-8');
-}
+app.use(express.json({ limit: '10mb' }));
 
 // Get all data
 app.get('/api/data', (_req, res) => {
-  const data = readData();
-  res.json(data);
+  try {
+    const data = getAllData();
+    res.json(data);
+  } catch (err) {
+    console.error('Failed to read data:', err);
+    res.status(500).json({ error: 'Failed to read data' });
+  }
 });
 
 // Save all data
 app.post('/api/data', (req, res) => {
-  writeData(req.body);
-  res.json({ ok: true });
+  try {
+    saveAllData(req.body);
+    res.json({ ok: true });
+  } catch (err) {
+    console.error('Failed to save data:', err);
+    res.status(500).json({ error: 'Failed to save data' });
+  }
 });
 
 app.listen(PORT, () => {
-  console.log(`Storage server running on http://localhost:${PORT}`);
+  console.log(`Storage server running on http://localhost:${PORT} (SQLite backend)`);
 });
