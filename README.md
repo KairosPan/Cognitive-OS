@@ -1,14 +1,6 @@
 # Cognitive OS
 
-```bash
-npm install
-npm run dev
-# 访问 http://localhost:3000
-```
 
-数据持久化在本地 `cognitive-os.db`（自动创建，已在 `.gitignore` 中）。
-
----
 
 ## English
 
